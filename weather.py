@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup as bs
 import pandas as pd
-year =1950
+year =2000
 month = 1
 
 
@@ -15,12 +15,12 @@ dict = {'day':[],
         'Snow Depth':[],
         'Avg Wind':[],
         #'Wind Direction':[],
-        'Gust':[],
+        #'Gust':[],
         #'Time':[],
         'RH Min/Max':[],
         'Feel':[]}
 
-while int(year) <= 1951:
+while int(year) <= 2010:
     print(year)
     month = 1
     while int(month)<=12:
@@ -49,8 +49,8 @@ while int(year) <= 1951:
                         split1 = str(c).split('<br')
                         length = len(split1[1:])
                         x = 1
-                        if 'Gust' not in str(c):
-                            dict['Gust'].append('')
+                    #    if 'Gust' not in str(c):
+                        #    dict['Gust'].append('')
                         if 'High' not in str(c):
                             dict['High'].append('')
                         if 'Low' not in str(c):
@@ -71,29 +71,30 @@ while int(year) <= 1951:
                             dict['Feel'].append('')
 
                         while x <= length:
-                            if 'Gust' in split1[x]:
-                                x+=1
+                            #if 'Gust' in split1[x]:
+                            #    x+=1
                                 #print(split1[x])
-                                dict['Gust'].append(split1[x])
-                            else:
-                                if 'High' in split1[x]:
-                                    dict['High'].append(split1[x])
-                                if 'Low' in split1[x]:
-                                    dict['Low'].append(split1[x])
-                                if 'Rain' in split1[x]:
-                                    dict['Rain'].append(split1[x])
-                                if 'Snow:' in split1[x]:
-                                    dict['Snow'].append(split1[x])
-                                if 'Snow Depth' in split1[x]:
-                                    dict['Snow Depth'].append(split1[x])
-                                if 'Avg Wind:' in split1[x]:
-                                    dict['Avg Wind'].append(split1[x])
-                                #if '@' in split1[x] and 'Avg Wind:' not in split1[x] :
-                                #    dict['Wind Direction'].append(split1[x])
-                                if 'RH' in split1[x]:
-                                    dict['RH Min/Max'].append(split1[x])
-                                if 'Feel' in split1[x]:
-                                    dict['Feel'].append(split1[x])
+                            #    dict['Gust'].append(split1[x].replace('/>',''))
+                            #else:
+                            #dict['Gust'].append('')
+                            if 'High' in split1[x]:
+                                dict['High'].append((split1[x].split(':'))[1].replace("'",''))
+                            if 'Low' in split1[x]:
+                                dict['Low'].append((split1[x].split(':'))[1].replace("'",''))
+                            if 'Rain' in split1[x]:
+                                dict['Rain'].append((split1[x].split(':'))[1].replace("'",''))
+                            if 'Snow:' in split1[x]:
+                                dict['Snow'].append((split1[x].split(':'))[1].replace("'",''))
+                            if 'Snow Depth' in split1[x]:
+                                dict['Snow Depth'].append((split1[x].split(':'))[1].replace("'",''))
+                            if 'Avg Wind:' in split1[x]:
+                                dict['Avg Wind'].append((split1[x].split(':'))[1].replace("'",'').replace('/>',''))
+                            #if '@' in split1[x] and 'Avg Wind:' not in split1[x] :
+                            #    dict['Wind Direction'].append(split1[x])
+                            if 'RH' in split1[x]:
+                                dict['RH Min/Max'].append((split1[x].split(':'))[1].replace("'",'').replace('</br>','').replace('</td',''))
+                            if 'Feel' in split1[x]:
+                                dict['Feel'].append((split1[x].split(':'))[1].replace("'",'').split('<')[0].replace('</br>','').replace('</td',''))
                                 #print(split1[x])
 
                             x+=1
