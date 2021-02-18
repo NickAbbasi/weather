@@ -30,7 +30,11 @@ soup = bs(page.content, 'html.parser')
 table = soup.findChildren('table')
 rows = table[1].findChildren('tr')
 
-mainlist =[[] for _ in range(len(rows)+1)]
+mainlist =[]
+for r in range(len(rows)+1):
+    mainlist.append([])
+
+
 #print (mainlist)
 #print(len(rows))
 
@@ -45,14 +49,14 @@ for r in rows:
     for c in cells:
         #print(c.text)
         #dict[list[y]].append(c.text)
-        mainlist[x][y] = c.text
-
+        #temp[y] =
+        mainlist[x].append(c.text)
         #print(y)
         y+=1
     #print(temp)
     #print(temp)
-    #mainlist.extend()
-    mainlist[x]=(temp)
+
+
         #temp[y] = c.text
     y = 0
     #print(list)
@@ -70,6 +74,8 @@ for stat in mainlist:
         x +=1
 #list1.pop(0)
 print(mainlist)
+for ele in mainlist:
+    print(id(ele))
 
 
 
