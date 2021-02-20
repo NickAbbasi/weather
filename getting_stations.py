@@ -1,81 +1,69 @@
-import requests
-from bs4 import BeautifulSoup as bs
 
-url = 'https://mesonet.agron.iastate.edu/sites/networks.php?network=MD_ASOS&format=html'
+def getting_list_of_stations():
+    import requests
+    from bs4 import BeautifulSoup as bs
 
-#dict = {'ID':[],
-#        'Name':[],
-#        'lat':[],
-#        'log':[],
-#        'elev':[],
-#        'beg':[],
-    #    'end':[],
-    #    'net':[]}
+    url = 'https://mesonet.agron.iastate.edu/sites/networks.php?network=MD_ASOS&format=html'
 
-#mainlist = []
-temp =['ID',
-        'Name',
-        'lat',
-        'log',
-        'elev',
-        'beg',
-        'end',
-        'net']
+    temp =['ID',
+            'Name',
+            'lat',
+            'log',
+            'elev',
+            'beg',
+            'end',
+            'net']
 
 
-page = requests.get(url)
+    page = requests.get(url)
 
-soup = bs(page.content, 'html.parser')
+    soup = bs(page.content, 'html.parser')
 
-table = soup.findChildren('table')
-rows = table[1].findChildren('tr')
+    table = soup.findChildren('table')
+    rows = table[1].findChildren('tr')
 
-mainlist =[]
-for r in range(len(rows)+1):
-    mainlist.append([])
-
-
-#print (mainlist)
-#print(len(rows))
-
-x=0
-for r in rows:
+    mainlist =[]
+    for r in range(len(rows)+1):
+        mainlist.append([])
 
 
-    cells = r.findChildren('td')
-    y = 0
-    #print('*************')
-
-    for c in cells:
-        #print(c.text)
-        #dict[list[y]].append(c.text)
-        #temp[y] =
-        mainlist[x].append(c.text)
-        #print(y)
-        y+=1
-    #print(temp)
-    #print(temp)
+    x=0
+    for r in rows:
 
 
-        #temp[y] = c.text
-    y = 0
-    #print(list)
-    x+=1
+        cells = r.findChildren('td')
+        y = 0
+        #print('*************')
 
-    #x+=1
+        for c in cells:
 
-x = 0
-for stat in mainlist:
+            mainlist[x].append(c.text)
+            #print(y)
+            y+=1
+
+        y = 0
+
+        x+=1
+
+
+
     x = 0
-    for val in stat:
-        #print(y)
-        #if y == 5 or y ==6:
-        #print(y, '   ',val)
-        x +=1
-#list1.pop(0)
-print(mainlist)
-for ele in mainlist:
-    print(id(ele))
+    for stat in mainlist:
+        x = 0
+        for val in stat:
+
+            x +=1
+    mainlist.pop(0)
+    mainlist.pop(len(mainlist)-1)
+    return(mainlist)
+
+list = getting_list_of_stations()
+#print(list[0])
+
+
+
+
+
 
 
 
