@@ -5,6 +5,8 @@ import time
 import datetime
 import pandas as pd
 import reading_csv_files_into_db as rs
+from sqlalchemy import create_engine
+import read_dirinto_df as rd
 
 #import api_getting_stations as gs
 import getting_stations as g
@@ -33,7 +35,14 @@ def download_data(uri):
     print("Exhausted attempts to download, returning empty data")
     return ""
 
-
+#creating db engine to pass into read_into_db
+file = open('..\pw.txt')
+pw = str(file.readline())
+file.close()
+engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}"
+                   .format(user="nick",
+                           pw=pw,
+                           db="weather_data"))
 #can only return 1 day at a time, so need to loop through
 
 filelist =[]
@@ -57,12 +66,12 @@ for l in list:
         end_year = int((datetime.datetime.today()).year)
         end_day = int((datetime.datetime.today()).day)
     SERVICE = "http://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?"
-    startts = datetime.datetime(start_year, start_month, start_day)
-    endts = datetime.datetime(end_year, end_month, end_day)
+    startts = datetime.datetime(2011, 1, 1)
+    endts = datetime.datetime(2011, 6, 30)
     interval = datetime.timedelta(hours=24)
     now = startts
     while now < endts:
-        service = SERVICE + "station={}&data=all&tz=Etc/UTC&format=onlycomma&latlon=yes&missing=null&trace=null&".format(l[0])
+        service = SERVICE + "station={}&data=all&tz=Etc/UTC&format=onlycomma&latlon=yes&missing=empty&trace=empty&".format(l[0])
 
         service += now.strftime("year1=%Y&month1=%m&day1=%d&")
 
@@ -70,27 +79,17 @@ for l in list:
         #uri = "%s&station=%s" % (service, 'AXA')
         uri = service
         data = download_data(uri)
-        outfn = "..\%s%s.csv" % (l[0],now.strftime("%Y%m%d"),)
-        filelist.append("..\%s%s.csv" % (l[0],now.strftime("%Y%m%d"),))
-        with open(outfn, "w") as fh:
-                    fh.write(data)
+        rd.read_into_db(data,engine)
+        #will use new function here
+        #outfn = "..\%s%s.csv" % (l[0],now.strftime("%Y%m%d"),)
+        #filelist.append("..\%s%s.csv" % (l[0],now.strftime("%Y%m%d"),))
+        #with open(outfn, "w") as fh:
+        #            fh.write(data)
         now += interval
         print(now)
-#df = pd.DataFrame(data)
 
-#df = pd.DataFrame(data)
-print(uri)
-print(filelist)
+#print(uri)
+#print(filelist)
 
-rs.writing_results(filelist)
-
-
-#print(data)
-#print(df)
-#with open(outfn, "w") as fh:
-    #        fh.write(data)
-#df = pd.read_csv("..\%s.csv" % (startts.strftime("%Y%m%d"),))
-#print(df)
-#df.to_excel('..\est.xlsx','sheet1')
-
-#print(data)
+#this function required the files to be written as csvs and then read back.
+#rs.writing_results(filelist)
