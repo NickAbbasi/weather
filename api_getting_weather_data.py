@@ -4,8 +4,8 @@ import json
 import time
 import datetime
 import pandas as pd
-import reading_csv_files_into_db as rs
-from sqlalchemy import create_engine
+#import reading_csv_files_into_db as rs
+import sqlalchemy as sa
 import read_dirinto_df as rd
 
 #import api_getting_stations as gs
@@ -39,35 +39,59 @@ def download_data(uri):
 file = open('..\pw.txt')
 pw = str(file.readline())
 file.close()
-engine = create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}"
+engine = sa.create_engine("mysql+pymysql://{user}:{pw}@localhost/{db}"
                    .format(user="nick",
                            pw=pw,
                            db="weather_data"))
+
+connection = engine.connect()
+metadata = sa.MetaData()
+raw_import_hourly = sa.Table('raw_import_hourly', metadata, autoload=True, autoload_with=engine)
+
+
 #can only return 1 day at a time, so need to loop through
 
 filelist =[]
+#this function is just web scrping to to get md stations. will be set up to get entire us in future
 list1 = g.getting_list_of_stations() #gs.get_stations_from_networks('y')
 list = list1[0:1]
 print(list)
 for l in list:
+    row_count_q = sa.select([sa.func.count(raw_import_hourly.columns.valid)]).where(raw_import_hourly.columns.station == l[0])
+
+    x = connection.execute(row_count_q).scalar()
+
+
     #getting date readings started for a station
-    start_date = datetime.datetime.strptime(str(l[5]),'%Y-%m-%d %H:%M:%S-%f')
-    start_month = int(start_date.month)
-    start_year = int(start_date.year)
-    start_day = int(start_date.day)
+    if x > 1:
+        max_date_q = sa.select([sa.func.max(raw_import_hourly.columns.valid)]).where(raw_import_hourly.columns.station == l[0])
+        last_date = connection.execute(max_date_q).scalar()
+        last_date += datetime.timedelta(hours=24)
+        start_month = int((last_date).month)
+        start_year = int((last_date).year)
+        start_day = int((last_date).day)
+
+    else:
+
+        start_date = datetime.datetime.strptime(str(l[5]),'%Y-%m-%d %H:%M:%S-%f')
+        start_month = int(start_date.month)
+        start_year = int(start_date.year)
+        start_day = int(start_date.day)
     #getting end date of readings if applicable
     if len(l[6])> 1:
-
-        end_month =  int(datetime.datetime.strptime(str(l[5]),'%Y-%m-%d %H:%M:%S-%f').month)
-        end_year = int(datetime.datetime.strptime(str(l[5]),'%Y-%m-%d %H:%M:%S-%f').year)
-        end_day = int(datetime.datetime.strptime(str(l[5]),'%Y-%m-%d %H:%M:%S-%f').day)
+        end_date = datetime.datetime.strptime(str(l[6]),'%Y-%m-%d %H:%M:%S-%f') + datetime.timedelta(hours=24)
+        end_month =  int((end_date).month)
+        end_year = int((end_date).year)
+        end_day = int((end_date).day)
     else:
-        end_month = int((datetime.datetime.today()).month)
-        end_year = int((datetime.datetime.today()).year)
-        end_day = int((datetime.datetime.today()).day)
+
+        end_date = datetime.datetime.today()
+        end_month = int((end_date).month)
+        end_year = int((end_date).year)
+        end_day = int((end_date).day)
     SERVICE = "http://mesonet.agron.iastate.edu/cgi-bin/request/asos.py?"
-    startts = datetime.datetime(2011, 1, 1)
-    endts = datetime.datetime(2011, 6, 30)
+    startts = datetime.datetime(start_year, start_month, start_day)
+    endts = datetime.datetime(end_year, end_month, end_day)
     interval = datetime.timedelta(hours=24)
     now = startts
     while now < endts:
@@ -85,8 +109,9 @@ for l in list:
         #filelist.append("..\%s%s.csv" % (l[0],now.strftime("%Y%m%d"),))
         #with open(outfn, "w") as fh:
         #            fh.write(data)
-        now += interval
         print(now)
+        now += interval
+
 
 #print(uri)
 #print(filelist)
