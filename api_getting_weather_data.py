@@ -54,7 +54,7 @@ raw_import_hourly = sa.Table('raw_import_hourly', metadata, autoload=True, autol
 filelist =[]
 #this function is just web scrping to to get md stations. will be set up to get entire us in future
 list1 = g.getting_list_of_stations() #gs.get_stations_from_networks('y')
-list = list1[0:1]
+list = list1[0:3]
 print(list)
 for l in list:
     row_count_q = sa.select([sa.func.count(raw_import_hourly.columns.valid)]).where(raw_import_hourly.columns.station == l[0])
