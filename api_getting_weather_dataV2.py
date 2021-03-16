@@ -15,9 +15,9 @@ from mongoengine import connect ,Document, StringField, DecimalField,DateTimeFie
 
 
 #connect(db ='weather',host =   'localhost',port = 27017)
-client = MongoClient('localhost', 27017)
-database = client["weather"]
-collection = database["raw__data"]
+#client = MongoClient('localhost', 27017)
+#database = client["weather"]
+#collection = database["raw__data"]
 
 
 
@@ -93,6 +93,7 @@ list1 = g.getting_list_of_stations() #gs.get_stations_from_networks('y')
 list = list1[0:3]
 print(list)
 for l in list:
+    print(l[0])
     #row_count_q = sa.select([sa.func.count(raw_import_hourly.columns.valid)]).where(raw_import_hourly.columns.station == l[0])
     connect(db ='weather',host =   'localhost',port = 27017)
     x = Raw_Data.objects(station = l[0]).count()
@@ -101,7 +102,10 @@ for l in list:
     #getting date readings started for a station
     if x > 1:
         #max_date_q = sa.select([sa.func.max(raw_import_hourly.columns.valid)]).where(raw_import_hourly.columns.station == l[0])
-        last_date  = collection.find_one(sort=[("valid", -1)])["valid"]
+        test = Raw_Data.objects(station = l[0])[:1].order_by('-valid')
+
+        last_date  =  test[0]['valid']    #collection.find_one(sort=[("valid", -1)])["valid"]
+        print(last_date)
         last_date += datetime.timedelta(hours=24)
         start_month = int((last_date).month)
         start_year = int((last_date).year)
@@ -125,7 +129,7 @@ for l in list:
         endts = datetime.datetime(end_year, end_month, end_day)
         interval = datetime.timedelta(hours=24)
         now = startts
-        while now < endts:
+        while now <= endts:
             service = SERVICE + "station={}&data=all&tz=Etc/UTC&format=onlycomma&latlon=yes&missing=empty&trace=empty&".format(l[0])
 
             service += now.strftime("year1=%Y&month1=%m&day1=%d&")
@@ -133,6 +137,7 @@ for l in list:
             service += (now + interval).strftime("year2=%Y&month2=%m&day2=%d&")
             #uri = "%s&station=%s" % (service, 'AXA')
             uri = service
+            print(uri)
             data = download_data(uri)
             mo.read_into_mongodb(data)
             #will use new function here
