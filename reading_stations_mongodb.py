@@ -18,6 +18,24 @@ class Stations(Document):
     end = DateTimeField(required=False)
     IEM = StringField(required=True)
 
-x = Stations.objects(station = 'ADW').count()
+x = Stations.objects().count()
+mainlist = []
+z = 0
+while z < x:
+    mainlist.append([])
+    z+=1
 
-print(x)
+x = 0
+for s in Stations.objects:
+    mainlist[x].append(s.station)
+    mainlist[x].append(s.station_name)
+    mainlist[x].append(s.lat)
+    mainlist[x].append(s.lon)
+    mainlist[x].append(s.beg.date())
+    if s.end is None:
+        mainlist[x].append('')
+    else:
+        mainlist[x].append(s.end)
+    mainlist[x].append(s.IEM)
+    x+=1
+print(mainlist[1][4])

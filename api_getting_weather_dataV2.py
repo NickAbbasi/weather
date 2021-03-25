@@ -90,7 +90,7 @@ def download_data(uri):
 filelist =[]
 #this function is just web scrping to to get md stations. will be set up to get entire us in future
 list1 = g.getting_list_of_stations() #gs.get_stations_from_networks('y')
-list = list1[0:3]
+list = list1[0:6]
 print(list)
 for l in list:
     print(l[0])
