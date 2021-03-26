@@ -12,6 +12,7 @@ import read_dirinto_mongodb as mo
 import getting_stations as g
 from pymongo import MongoClient
 from mongoengine import connect ,Document, StringField, DecimalField,DateTimeField
+import reading_stations_mongodb as gdb
 
 
 #connect(db ='weather',host =   'localhost',port = 27017)
@@ -89,8 +90,9 @@ def download_data(uri):
 
 filelist =[]
 #this function is just web scrping to to get md stations. will be set up to get entire us in future
-list1 = g.getting_list_of_stations() #gs.get_stations_from_networks('y')
-list = list1[0:6]
+#list1 = g.getting_list_of_stations() #gs.get_stations_from_networks('y')
+list1 = gdb.getting_stations_from_db()
+list = list1[0:8]
 print(list)
 for l in list:
     print(l[0])
@@ -111,8 +113,8 @@ for l in list:
         start_year = int((last_date).year)
         start_day = int((last_date).day)
     #getting end date of readings if applicable
-        if len(l[6])> 1:
-            end_date = datetime.datetime.strptime(str(l[6]),'%Y-%m-%d %H:%M:%S-%f')
+        if l[5]!= '':
+            end_date = datetime.datetime.strptime(str(l[5]),'%Y-%m-%d %H:%M:%S')
             end_month =  int((end_date).month)
             end_year = int((end_date).year)
             end_day = int((end_date).day)
@@ -150,13 +152,13 @@ for l in list:
 
     else:
 
-        start_date = datetime.datetime.strptime(str(l[5]),'%Y-%m-%d %H:%M:%S-%f')
+        start_date = datetime.datetime.strptime(str(l[4]),'%Y-%m-%d %H:%M:%S')
         start_month = int(start_date.month)
         start_year = int(start_date.year)
         start_day = int(start_date.day)
 
-        if len(l[6])> 1:
-            end_date = datetime.datetime.strptime(str(l[6]),'%Y-%m-%d %H:%M:%S-%f') + datetime.timedelta(hours=24)
+        if len(l[5])> 1:
+            end_date = datetime.datetime.strptime(str(l[5]),'%Y-%m-%d %H:%M:%S') + datetime.timedelta(hours=24) #'%Y-%m-%d %H:%M:%S-%f'
             end_month =  int((end_date).month)
             end_year = int((end_date).year)
             end_day = int((end_date).day)
